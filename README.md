@@ -5,9 +5,9 @@
 # endpoints
 
 * GET /products
-** paginated collection of products
-** query parameters `available=true` - to display only those products which are still available
-** `available` can be transformed even to a more complex one, by adding a few elements about the stock ; if there is sufficient stock, or if there are only a few elements to present this information
+    * paginated collection of products
+    * query parameters `available=true` - to display only those products which are still available
+    * `available` can be transformed even to a more complex one, by adding a few elements about the stock ; if there is sufficient stock, or if there are only a few elements to present this information
 
 ```javascript
 {
@@ -59,7 +59,7 @@
 
 
 * GET /products/:id
-** product by id
+    * product by id
 ```javascript
 {
     "id" : "334s",
@@ -76,14 +76,15 @@
 ```
 
 * POST /shoppingbaskets
-** adding an element to the cart. Everything is based on a session id
-** a cart is added/available only for session id (!)
-** Returns 201 + Location Header with the location of the resource
-** a cart can be in multiple statuses
-*** PENDING - just created (waits for modifications)
-*** DELETED - removed from the system (soon the cart will disappear)
-*** FINALIZED - user finalized the cart and wants the goods added inside to be delivered
-**** this step can be done only through PATCH /carts/:id with additional data about the payment & owner of the command
+    * adding an element to the cart. Everything is based on a session id
+    * a cart is added/available only for session id (!)  //TODO: future implementation
+    * Returns 201 + Location Header with the location of the resource
+    * a cart can be in multiple statuses
+        * PENDING - just created (waits for modifications)
+        * DELETED - removed from the system (soon the cart will disappear)
+        * FINALIZED - user finalized the cart and wants the goods added inside to be delivered
+            * this step can be done only through PATCH /carts/:id with additional data about the payment & owner of the command
+            
 ```javascript
 {
     "items": [
@@ -99,8 +100,9 @@
 
 
 * GET /shoppingbaskets/:id
-** shows the content of the
-```
+    * shows the content of the
+    
+```javascript
 {
     "id": "d83jjdf939",
     "creationDt": "2016-02-19T03:26:07Z',
@@ -135,7 +137,8 @@
 ```
 
 * POST /shoppingbaskets/d83jjdf939/items
-** adds a new element to the basket
+    * adds a new element to the basket
+    
 ```javascript
 {
     "product": {
@@ -145,8 +148,10 @@
 }
 
 ```
+
 * GET /shoppingbaskets/d83jjdf939/items/d83jjdaffd
-```
+
+```javascript
     {
         "id": "d83jjdaffd"
         "link": {
