@@ -1,8 +1,8 @@
-package ro.andonescu.shoppingbasket.dal
+package ro.andonescu.shoppingbasket.dao
 
 import com.google.inject.Singleton
-import ro.andonescu.shoppingbasket.dal.entities.Product
-import ro.andonescu.shoppingbasket.dal.entities.gen.ProductGen
+import ro.andonescu.shoppingbasket.dao.entities.Product
+import ro.andonescu.shoppingbasket.dao.entities.gen.ProductGen
 
 import scala.concurrent.Future
 

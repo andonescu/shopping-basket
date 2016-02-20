@@ -1,8 +1,8 @@
-package ro.andonescu.shoppingbasket.dal.entities.gen
+package ro.andonescu.shoppingbasket.dao.entities.gen
 
 import java.util.UUID
 
-import ro.andonescu.shoppingbasket.dal.entities.Product
+import ro.andonescu.shoppingbasket.dao.entities.Product
 
 import scala.collection.mutable
 import scala.util.Random

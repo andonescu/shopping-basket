@@ -2,8 +2,8 @@ package ro.andonescu.shoppingbasket.services
 
 import com.google.inject.{Inject, Singleton}
 import play.api.Logger
-import ro.andonescu.shoppingbasket.dal.ProductRepository
-import ro.andonescu.shoppingbasket.dal.entities.Product
+import ro.andonescu.shoppingbasket.dao.ProductRepository
+import ro.andonescu.shoppingbasket.dao.entities.Product
 import ro.andonescu.shoppingbasket.services.items.{Item, PaginationItem}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -22,7 +22,7 @@ class ProductService @Inject()(productRepo: ProductRepository) {
     * @param page      who needs to retrieved, default 1
     * @param pageSize  dimension of the extract data, default 25
     * @param available if the requested data needs to be available
-    * @return a [[Item]] of [[ro.andonescu.shoppingbasket.dal.entities.Product]] as [[scala.concurrent.Future]] with the extract data
+    * @return a [[Item]] of [[ro.andonescu.shoppingbasket.dao.entities.Product]] as [[scala.concurrent.Future]] with the extract data
     */
   def products(
       page: Int = 1,
@@ -31,7 +31,7 @@ class ProductService @Inject()(productRepo: ProductRepository) {
 
     Logger.debug(s"entry data: $page - $pageSize - $available")
 
-    // get data, but filter it after available indicator
+    // get all data based on the given parameter `available`
     val productsFuture = productRepo.collection.map(_.filter(product => available.fold(true)(_ == product.isAvailable)))
 
     productsFuture.map {
@@ -46,6 +46,10 @@ class ProductService @Inject()(productRepo: ProductRepository) {
     }
   }
 
-  def product(id: String)(implicit ec: ExecutionContext): Future[Option[Product]] = productRepo.collection.map(_.find(_.id == id))
+  /**
+    * Get a product from the system
+    */
+  def product(id: String)(implicit ec: ExecutionContext): Future[Option[Product]] =
+    productRepo.collection.map(_.find(_.id == id))
 
 }

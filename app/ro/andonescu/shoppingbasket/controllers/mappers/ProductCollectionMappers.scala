@@ -2,7 +2,7 @@ package ro.andonescu.shoppingbasket.controllers.mappers
 
 import play.api.mvc.Request
 import ro.andonescu.shoppingbasket.controllers.views.{Link, ProductCollectionView, CollectionView}
-import ro.andonescu.shoppingbasket.dal.entities.Product
+import ro.andonescu.shoppingbasket.dao.entities.Product
 import ro.andonescu.shoppingbasket.services.items.Item
 
 /**

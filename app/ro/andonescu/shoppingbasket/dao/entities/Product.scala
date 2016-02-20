@@ -1,4 +1,4 @@
-package ro.andonescu.shoppingbasket.dal.entities
+package ro.andonescu.shoppingbasket.dao.entities
 
 /**
   * Created by andonescu on 20.02.2016.
