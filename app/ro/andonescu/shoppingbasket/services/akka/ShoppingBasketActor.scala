@@ -124,7 +124,7 @@ class ShoppingBasketActor @Inject()(productRepo: ProductRepository)(implicit ec:
   /**
     * Handle a [[ro.andonescu.shoppingbasket.services.items.ShoppingBasketCreate]] request
     */
-  private def handleShoppingBasketCreateRequest(items: Seq[ShoppingBasketCreateItem]): Future[Either[ServiceErrors, String]] = {
+  private[akka] def handleShoppingBasketCreateRequest(items: Seq[ShoppingBasketCreateItem]): Future[Either[ServiceErrors, String]] = {
     val response = productRepo.collection.map {
       products =>
 
@@ -171,7 +171,8 @@ class ShoppingBasketActor @Inject()(productRepo: ProductRepository)(implicit ec:
     response
   }
 
-  private var shoppingBasketSeq: scala.collection.mutable.Seq[ShoppingBasket] = scala.collection.mutable.Seq.empty[ShoppingBasket]
+  //TODO: this should be moved from here into a singleton
+  private [akka]  var shoppingBasketSeq: scala.collection.mutable.Seq[ShoppingBasket] = scala.collection.mutable.Seq.empty[ShoppingBasket]
 
   private def requestedProductById(id: String, itemsFromBasket: Seq[ShoppingBasketCreateItem]) =
     itemsFromBasket.find(_.product.id == id)
@@ -185,7 +186,6 @@ class ShoppingBasketActor @Inject()(productRepo: ProductRepository)(implicit ec:
 
   /**
     * TODO: this needs some refactor;
-    * TODO: replace [[RuntimeException]] with some custom application errors
     */
   private[akka] def updateItems(id: String, numberToBlock: Long, op: (Long, Long) => Long = ShoppingCartOperations.decrease) =
     Try(synchronized {

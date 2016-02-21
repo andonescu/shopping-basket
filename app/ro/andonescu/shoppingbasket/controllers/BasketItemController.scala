@@ -7,17 +7,15 @@ import com.google.inject.Inject
 import com.google.inject.name.Named
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.{JsError, Json}
-import play.api.mvc.{Request, Action, Controller}
+import play.api.mvc.{Action, Controller, Request}
 
 import ro.andonescu.shoppingbasket.controllers.forms.PostBasketItemForm
 import ro.andonescu.shoppingbasket.controllers.forms.formatters.BasketFormsFormatters._
 import ro.andonescu.shoppingbasket.controllers.mappers.services.ShoppingBasketCreateItemSingleMapper
 import ro.andonescu.shoppingbasket.controllers.mappers.views.ShoppingBasketItemDisplayViewMapper
-import ro.andonescu.shoppingbasket.controllers.views.Link
 import ro.andonescu.shoppingbasket.services.items._
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success}
 
 /**
   * Created by andonescu on 21.02.2016.

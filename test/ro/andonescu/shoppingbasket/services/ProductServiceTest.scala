@@ -8,8 +8,8 @@ import org.specs2.runner.JUnitRunner
 
 import ro.andonescu.shoppingbasket.dao.ProductRepository
 import ro.andonescu.shoppingbasket.dao.entities.Product
-import ro.andonescu.shoppingbasket.dao.entities.gen.ProductGen
 import ro.andonescu.shoppingbasket.services.items.{Item, PaginationItem}
+import ro.andonescu.shoppingbasket.util.ProductGenerators._
 
 import scala.concurrent.Future
 
@@ -77,7 +77,4 @@ class ProductServiceTest extends Specification with Mockito {
 
     (new ProductService(productRepositoryMock), productRepositoryMock)
   }
-
-  def generateProducts(numOfProducts: Int = 5): scala.collection.mutable.Seq[Product] =
-    (1 to numOfProducts).map(i => ProductGen.getNewProduct)(collection.breakOut)
 }

@@ -147,5 +147,4 @@ class BasketControllerTest extends PlaySpecification {
       response must beSome.which(status(_) == BAD_REQUEST)
     }
   }
-
 }
