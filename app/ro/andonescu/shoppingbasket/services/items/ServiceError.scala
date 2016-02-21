@@ -5,5 +5,10 @@ package ro.andonescu.shoppingbasket.services.items
   */
 case class ServiceError(field: String, message: String) extends ServiceDto
 
-case class ServiceErrors(list: Seq[ServiceError])
+case class ServiceErrors(errors: Seq[ServiceError])
 
+object ServiceErrors {
+
+  def apply(field: String, message: String): ServiceErrors =
+    ServiceErrors(Seq(ServiceError(field, message)))
+}

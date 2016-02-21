@@ -37,7 +37,7 @@ class BasketController @Inject()(val messagesApi: MessagesApi,
 
             // we can have an intermediary validator
 
-            (configuredActor ? BasketCreationMapper.toServiceObj(form)).mapTo[Either[ServiceErrors, String]].map {
+            (configuredActor ? BasketCreationMapper.toServiceObj(form)).mapTo[Future[Either[ServiceErrors, String]]].flatMap(identity).map {
               case Right(id) => Created.withHeaders((LOCATION, basketLocationURl(id)))
               case Left(errors) => BadRequest(errors.toString)
             }

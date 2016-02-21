@@ -25,7 +25,7 @@ class ProductServiceTest extends Specification with Mockito {
     "return the products page with no results" in { implicit ee: ExecutionEnv =>
       val (service, mock) = serviceWithDependencies
 
-      (mock.collection).returns(Future.successful(Seq.empty[Product]))
+      (mock.collection).returns(Future.successful(generateProducts(0)))
 
       val products = service.products()
 
@@ -78,6 +78,6 @@ class ProductServiceTest extends Specification with Mockito {
     (new ProductService(productRepositoryMock), productRepositoryMock)
   }
 
-  def generateProducts(numOfProducts: Int = 5) =
-    (1 to numOfProducts).map(i => ProductGen.getNewProduct)
+  def generateProducts(numOfProducts: Int = 5): scala.collection.mutable.Seq[Product] =
+    (1 to numOfProducts).map(i => ProductGen.getNewProduct)(collection.breakOut)
 }

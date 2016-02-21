@@ -17,7 +17,7 @@ class ProductRepository {
     *
     * If a [[scala.concurrent.Future]] like in a live scenario
     */
-  def collection: Future[Seq[Product]] = Future.successful(ProductGen.getProducts)
+  def collection= Future.successful(ProductGen.getProducts)
 
   /**
     * Retrieve a product from the list
