@@ -6,13 +6,18 @@ import akka.util.Timeout
 import com.google.inject.Inject
 import com.google.inject.name.Named
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.Json
-import play.api.mvc.{Action, Controller}
+import play.api.libs.json.{JsError, Json}
+import play.api.mvc.{Request, Action, Controller}
 
+import ro.andonescu.shoppingbasket.controllers.forms.PostBasketItemForm
+import ro.andonescu.shoppingbasket.controllers.forms.formatters.BasketFormsFormatters._
+import ro.andonescu.shoppingbasket.controllers.mappers.services.ShoppingBasketCreateItemSingleMapper
 import ro.andonescu.shoppingbasket.controllers.mappers.views.ShoppingBasketItemDisplayViewMapper
-import ro.andonescu.shoppingbasket.services.items.{ShoppingBasketItemDelete, ShoppingBasketItemDisplay, ShoppingBasketItemView}
+import ro.andonescu.shoppingbasket.controllers.views.Link
+import ro.andonescu.shoppingbasket.services.items._
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success}
 
 /**
   * Created by andonescu on 21.02.2016.
@@ -38,6 +43,9 @@ class BasketItemController @Inject()(val messagesApi: MessagesApi,
     }
   }
 
+  /**
+    * Handler for DELETE /shoppingbaskets/:id/items/:id
+    */
   def deleteItemFromBasket(basketId: String, itemId: String) = Action.async { implicit request =>
     (shoppingBasketActor ? ShoppingBasketItemDelete(basketId, itemId)).mapTo[Future[Option[Unit]]].flatMap(identity).map {
       case Some(_) =>
@@ -46,4 +54,30 @@ class BasketItemController @Inject()(val messagesApi: MessagesApi,
     }
   }
 
+
+  /**
+    * Handler for POST /shoppingbaskets/:id/items
+    */
+  def addItemToBasket(basketId: String) = Action.async { implicit request =>
+    request.body.asJson.map {
+      json =>
+        json.validate[PostBasketItemForm].map {
+          form =>
+
+            (shoppingBasketActor ? new ShoppingBasketCreateItemSingleMapper(basketId).toServiceObj(form)).mapTo[Future[Option[Either[ServiceErrors, String]]]].flatMap(identity).map {
+              case Some(either) =>
+                either match {
+                  case Right(itemId) => Created.withHeaders((CONTENT_TYPE, itemLocationURL(basketId, itemId)))
+                  case Left(errors) => BadRequest(errors.toString)
+                }
+              case None => NotFound
+            }
+        }.recoverTotal(e => Future.successful(BadRequest("Detected error: " + JsError.toJson(e))))
+    }.getOrElse {
+      Future.successful(BadRequest("Expecting Json Data"))
+    }
+  }
+
+  def itemLocationURL(basketId: String, itemId: String)(implicit req: Request[_]) =
+    ro.andonescu.shoppingbasket.controllers.routes.BasketItemController.itemByBasket(basketId, itemId).absoluteURL()(req).stripSuffix("/").trim
 }

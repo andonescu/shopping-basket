@@ -13,3 +13,4 @@ GET         /shoppingbaskets/:id                            ro.andonescu.shoppin
 # Shopping Basket Item Operations
 GET         /shoppingbaskets/:basketId/items/:itemId        ro.andonescu.shoppingbasket.controllers.BasketItemController.itemByBasket(basketId: String, itemId: String)
 DELETE      /shoppingbaskets/:basketId/items/:itemId        ro.andonescu.shoppingbasket.controllers.BasketItemController.deleteItemFromBasket(basketId: String, itemId: String)
+POST        /shoppingbaskets/:basketId/items                ro.andonescu.shoppingbasket.controllers.BasketItemController.addItemToBasket(basketId)

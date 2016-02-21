@@ -27,8 +27,29 @@ class ShoppingBasketActor @Inject()(productRepo: ProductRepository)(implicit ec:
       sender() ! handleBasketItems(basketId, itemId)
     case ShoppingBasketItemDelete(basketId, itemId) =>
       sender() ! handleBasketItemDelete(basketId, itemId)
+    case createItemInfo: ShoppingBasketCreateItemSingle =>
+      sender() ! handleShoppingBasketCreateItemSimple(createItemInfo)
     case _ => ???
   }
+
+  def handleShoppingBasketCreateItemSimple(createItemInfo: ShoppingBasketCreateItemSingle): Future[Option[Either[ServiceErrors, String]]] =
+    Future.successful(shoppingBasketSeq.find(b => b.id == createItemInfo.basketId).map {
+      basket =>
+        updateItems(Seq(createItemInfo.item)) match {
+          case Success(_) =>
+            // we can store the new list
+            val shoppingListWithTheCurrentBasket = shoppingBasketSeq diff (Seq(basket))
+
+            val newItem = ShoppingBasketItem(UUID.randomUUID(), createItemInfo.item)
+
+            shoppingBasketSeq = shoppingListWithTheCurrentBasket :+ basket.copy(items = basket.items :+ newItem)
+
+            Right(newItem.id)
+          case Failure(errors) =>
+            Left(ServiceErrors("/items", errors.toString()))
+        }
+    })
+
 
   def handleBasketItemDelete(basketId: String, itemId: String) = {
     Future.successful(shoppingBasketSeq.find(b => b.id == basketId).map {
@@ -41,7 +62,7 @@ class ShoppingBasketActor @Inject()(productRepo: ProductRepository)(implicit ec:
           val itemsWithoutTheRemovedItem = basket.items.filterNot(_.id == itemId)
 
           shoppingBasketSeq = shoppingListWithTheCurrentBasket :+ basket.copy(items = itemsWithoutTheRemovedItem)
-          updateItems(elem.product.id, elem.capacity, ShoppingCartOperations.add
+          updateItems(elem.product.id, elem.capacity, ShoppingCartOperations.add)
         }
       //TODO: put back what has been removed
     }.flatten)
@@ -166,21 +187,22 @@ class ShoppingBasketActor @Inject()(productRepo: ProductRepository)(implicit ec:
     * TODO: this needs some refactor;
     * TODO: replace [[RuntimeException]] with some custom application errors
     */
-  private[akka] def updateItems(id: String, numberToBlock: Long, op: (Long, Long) => Long = ShoppingCartOperations.decrease) = synchronized {
-    import scala.util.control.Breaks._
+  private[akka] def updateItems(id: String, numberToBlock: Long, op: (Long, Long) => Long = ShoppingCartOperations.decrease) =
+    Try(synchronized {
+      import scala.util.control.Breaks._
 
-    breakable {
-      for (i <- 0 until ProductGen.getProducts.size) {
-        val product = ProductGen.getProducts(i)
+      breakable {
+        for (i <- 0 until ProductGen.getProducts.size) {
+          val product = ProductGen.getProducts(i)
 
-        if (product.id == id)
-          if (product.stock > numberToBlock) {
-            ProductGen.getProducts(i) = product.copy(stock = op(product.stock, numberToBlock))
-            break
-          }
+          if (product.id == id)
+            if (product.stock > numberToBlock) {
+              ProductGen.getProducts(i) = product.copy(stock = op(product.stock, numberToBlock))
+              break
+            }
+        }
       }
-    }
-  }
+    })
 
   object ShoppingCartOperations {
     def add(x: Long, y: Long) = x + y
@@ -193,6 +215,5 @@ class ShoppingBasketActor @Inject()(productRepo: ProductRepository)(implicit ec:
     * TODO: this should be handled in a different way
     */
   private[akka] def updateItems(items: Seq[ShoppingBasketCreateItem]): Try[Unit] =
-    synchronized(Try(items.map(f => updateItems(f.product.id, f.capacity))))
-
+    Try(items.map(f => updateItems(f.product.id, f.capacity)))
 }
