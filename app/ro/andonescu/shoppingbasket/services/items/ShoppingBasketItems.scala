@@ -17,6 +17,9 @@ case class ShoppingBasketCreate(items: Seq[ShoppingBasketCreateItem]) extends Se
 
 case class ShoppingBasketView(id: String) extends ServiceDto
 
+case class ShoppingBasketItemView(basketId: String, itemId: String) extends ServiceDto
+
+
 // ShoppingBasket items
 
 case class ShoppingBasketItem(id: String, product: ShoppingBasketCreateProductItem, addedDt: DateTime, capacity: Int)

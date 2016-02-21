@@ -4,7 +4,7 @@ import play.api.mvc.Request
 
 import ro.andonescu.shoppingbasket.controllers.mappers.ViewMappers
 import ro.andonescu.shoppingbasket.controllers.views.{Link, ProductDisplayView, ShoppingBasketDisplayView, ShoppingBasketItemDisplayView}
-import ro.andonescu.shoppingbasket.services.items.ShoppingBasketDisplay
+import ro.andonescu.shoppingbasket.services.items.{ShoppingBasketDisplay, ShoppingBasketItemDisplay}
 
 /**
   * Created by andonescu on 21.02.2016.
@@ -14,21 +14,26 @@ final class ShoppingBasketDisplayViewMapper(req: Request[_]) extends ViewMappers
     ShoppingBasketDisplayView(
       obj.id,
       obj.items.map {
-        i => ShoppingBasketItemDisplayView(
-          i.id,
-          ProductDisplayView(
-            i.product.id,
-            i.product.name,
-            i.product.description,
-            i.product.price,
-            i.product.currency,
-            Link.self(ro.andonescu.shoppingbasket.controllers.routes.ProductController.product(i.product.id), req)
-          ),
-          i.addedDt,
-          i.capacity,
-          Link.self(ro.andonescu.shoppingbasket.controllers.routes.ProductController.product(i.product.id), req)
-        )
+        i => new ShoppingBasketItemDisplayViewMapper(obj.id)(req).toView(i)
       },
       Link.self(ro.andonescu.shoppingbasket.controllers.routes.BasketController.get(obj.id), req)
     )
+}
+
+
+final class ShoppingBasketItemDisplayViewMapper(basketId: String)(req: Request[_]) extends ViewMappers[ShoppingBasketItemDisplay, ShoppingBasketItemDisplayView] {
+  override def toView(obj: ShoppingBasketItemDisplay): ShoppingBasketItemDisplayView = ShoppingBasketItemDisplayView(
+    obj.id,
+    ProductDisplayView(
+      obj.product.id,
+      obj.product.name,
+      obj.product.description,
+      obj.product.price,
+      obj.product.currency,
+      Link.self(ro.andonescu.shoppingbasket.controllers.routes.ProductController.product(obj.product.id), req)
+    ),
+    obj.addedDt,
+    obj.capacity,
+    Link.self(ro.andonescu.shoppingbasket.controllers.routes.BasketItemController.itemByBasket(basketId, obj.id), req)
+  )
 }

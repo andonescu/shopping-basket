@@ -123,7 +123,7 @@
       "capacity": 2,
       "link": {
         "rel": "self",
-        "href": "http://localhost:9000/shoppingbaskets/3dce5964-66d4-4385-8de3-57dc54fe8fd2/items"
+        "href": "http://localhost:9000/shoppingbaskets/3dce5964-66d4-4385-8de3-57dc54fe8fd2/items/d1bb93e8-85a8-4ad3-816f-329a7a23966b"
       }
     }
   ],

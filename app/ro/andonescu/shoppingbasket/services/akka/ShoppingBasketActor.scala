@@ -13,16 +13,30 @@ import ro.andonescu.shoppingbasket.services.items._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
-
 class ShoppingBasketActor @Inject()(productRepo: ProductRepository)(implicit ec: ExecutionContext) extends Actor {
-
 
   def receive = {
     case ShoppingBasketCreate(items) =>
+      // POST /shoppingbaskets
       sender() ! handleShoppingBasketCreateRequest(items)
     case ShoppingBasketView(id) =>
+      // GET /shoppingbaskets/:id
       sender() ! handleBasketView(id)
+    case ShoppingBasketItemView(basketId, itemId) =>
+      // GET /shoppingbaskets/:id/items
+      sender() ! handleBasketItems(basketId, itemId)
   }
+
+  /**
+    * Retrieve a single basket element
+    */
+  def handleBasketItems(basketId: String, itemId: String): Future[Option[ShoppingBasketItemDisplay]] =
+    handleBasketView(basketId).map { basketOpt =>
+      basketOpt.map { basket =>
+        basket.items.find(_.id == itemId)
+      }.flatten
+      // we need to flatten so that we can transform from Option[Option to just a single Option
+    }
 
   private def handleBasketView(id: String): Future[Option[ShoppingBasketDisplay]] = {
     val shoppingBasket = shoppingBasketSeq.find(_.id == id).map {
@@ -146,6 +160,6 @@ class ShoppingBasketActor @Inject()(productRepo: ProductRepository)(implicit ec:
     * TODO: this should be handled in a different way
     */
   private[akka] def blockItems(items: Seq[ShoppingBasketCreateItem]): Try[Unit] =
-    Try(items.map(f => blockItems(f.product.id, f.capacity)))
+    synchronized(Try(items.map(f => blockItems(f.product.id, f.capacity))))
 
 }

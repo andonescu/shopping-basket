@@ -3,9 +3,10 @@
 # ~~~~
 
 # Product
-GET     /products                       ro.andonescu.shoppingbasket.controllers.ProductController.products(page: Int ?= 1, pageSize: Int ?= 50, available: Option[Boolean])
-GET     /products/:id                   ro.andonescu.shoppingbasket.controllers.ProductController.product(id: String)
+GET         /products                                       ro.andonescu.shoppingbasket.controllers.ProductController.products(page: Int ?= 1, pageSize: Int ?= 50, available: Option[Boolean])
+GET         /products/:id                                   ro.andonescu.shoppingbasket.controllers.ProductController.product(id: String)
 
 # Shopping Basket
-POST    /shoppingbaskets                ro.andonescu.shoppingbasket.controllers.BasketController.post()
-GET     /shoppingbaskets/:id            ro.andonescu.shoppingbasket.controllers.BasketController.get(id: String)
+POST        /shoppingbaskets                                ro.andonescu.shoppingbasket.controllers.BasketController.post()
+GET         /shoppingbaskets/:id                            ro.andonescu.shoppingbasket.controllers.BasketController.get(id: String)
+GET         /shoppingbaskets/:basketId/items/:itemId        ro.andonescu.shoppingbasket.controllers.BasketItemController.itemByBasket( basketId: String, itemId: String)
