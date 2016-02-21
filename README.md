@@ -104,35 +104,33 @@
     
 ```javascript
 {
-    "id": "d83jjdf939",
-    "creationDt": "2016-02-19T03:26:07Z',
-    "items": [
-        {
-            "id": "d83jjdaffd"
-            "link": {
-               "rel": "self",
-               "href": "/shoppingbaskets/d83jjdf939/items/d83jjdaffd"
-            },
-            "product": {
-               "id" : "334s",
-               "name": "TV",
-               "description": "something here",
-               "price": "56",
-               "currency": "EUR",
-               "available": "true",
-               "link": {
-                   "rel": "self",
-                   "href": "/products/334s"
-               }
-            },
-            "capacity": 2,
-            "addedDt": "2016-02-19T03:26:07Z'
+  "id": "2c6cfe7e-1c5b-4c1a-887b-5c1efa529b58",
+  "items": [
+    {
+      "id": "d1bb93e8-85a8-4ad3-816f-329a7a23966b",
+      "product": {
+        "id": "3dce5964-66d4-4385-8de3-57dc54fe8fd2",
+        "name": "37aS2EkQCY",
+        "description": "pSGsOnLgrotl2E1fUjeqXGiCSZ9kbu0s0No4301bFPZP1ARHF4",
+        "price": 75,
+        "currency": "EUR",
+        "link": {
+          "rel": "self",
+          "href": "http://localhost:9000/products/3dce5964-66d4-4385-8de3-57dc54fe8fd2"
         }
-    ],
-    "link": {
+      },
+      "addedDt": 1456069739532,
+      "capacity": 2,
+      "link": {
         "rel": "self",
-        "href": "/shoppingbaskets/d83jjdf939"
+        "href": "http://localhost:9000/shoppingbaskets/3dce5964-66d4-4385-8de3-57dc54fe8fd2/items"
+      }
     }
+  ],
+  "link": {
+    "rel": "self",
+    "href": "http://localhost:9000/shoppingbaskets/2c6cfe7e-1c5b-4c1a-887b-5c1efa529b58"
+  }
 }
 ```
 

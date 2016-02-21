@@ -133,16 +133,13 @@ class ShoppingBasketActor @Inject()(productRepo: ProductRepository)(implicit ec:
     */
   private[akka] def blockItems(id: String, numberToBlock: Int) = {
 
-    for (i <- 1 to ProductGen.getProducts.size) {
+    for (i <- 0 until ProductGen.getProducts.size) {
       val product = ProductGen.getProducts(i)
 
       if (product.id == id)
         if (product.stock > numberToBlock)
           ProductGen.getProducts(i) = product.copy(stock = product.stock - numberToBlock)
-
-
     }
-
   }
 
   /**
