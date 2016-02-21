@@ -1,6 +1,7 @@
 package ro.andonescu.shoppingbasket.controllers
 
 import com.google.inject.Inject
+import play.api.Logger
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, Controller}
@@ -23,6 +24,7 @@ class ProductController @Inject()(val productService: ProductService, val messag
       import CollectionViewFormatter._
       import ProductCollectionViewFormatter._
 
+      Logger.debug(data.toString)
       Ok(Json.toJson(new ProductCollectionMappers(request).toView(data)))
     }
   }

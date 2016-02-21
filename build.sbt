@@ -10,7 +10,7 @@ libraryDependencies ++= Seq(
   "org.mockito"                 %  "mockito-all"                % "1.9.5"   % Test,
   "com.typesafe.play"           %% "play-specs2"                % "2.4.6"   % Test,
   "com.typesafe.play"           %% "play-test"                  % "2.4.6"   % Test,
-  "com.typesafe.akka"           %% "akka-testkit"               % "2.4.2"   % Test,
+  "com.typesafe.akka"           %% "akka-testkit"               % "2.3.11"  % Test,
   specs2 % Test
 )
 
