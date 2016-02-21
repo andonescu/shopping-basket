@@ -4,9 +4,10 @@ import com.google.inject.Inject
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, Controller}
-import ro.andonescu.shoppingbasket.controllers.mappers.{ProductViewMapper, ProductCollectionMappers}
-import ro.andonescu.shoppingbasket.services.ProductService
+
+import ro.andonescu.shoppingbasket.controllers.mappers.views.{ProductCollectionMappers, ProductViewMapper}
 import ro.andonescu.shoppingbasket.controllers.views.formatters._
+import ro.andonescu.shoppingbasket.services.ProductService
 
 import scala.concurrent.ExecutionContext
 
@@ -19,8 +20,8 @@ class ProductController @Inject()(val productService: ProductService, val messag
 
   def products(page: Int, pageSize: Int, available: Option[Boolean] = None) = Action.async { implicit request =>
     productService.products(page, pageSize, available).map { data =>
-      import ProductCollectionViewFormatter._
       import CollectionViewFormatter._
+      import ProductCollectionViewFormatter._
 
       Ok(Json.toJson(new ProductCollectionMappers(request).toView(data)))
     }

@@ -8,3 +8,4 @@ GET     /products/:id                   ro.andonescu.shoppingbasket.controllers.
 
 # Shopping Basket
 POST    /shoppingbaskets                ro.andonescu.shoppingbasket.controllers.BasketController.post()
+GET     /shoppingbaskets/:id            ro.andonescu.shoppingbasket.controllers.BasketController.get(id: String)

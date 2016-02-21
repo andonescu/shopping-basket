@@ -49,7 +49,7 @@ class BasketControllerTest extends PlaySpecification {
       )
 
 
-      response must beSome.which(status(_) == BAD_REQUEST)
+      response must beSome.which(status(_) == CREATED)
     }
 
     "return an error if no product is available in the request" in new WithApplication {
