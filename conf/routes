@@ -2,6 +2,9 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-# Endpoints
-GET     /products                       ro.andonescu.shoppingbasket.controllers.ProductsController.products(page: Int ?= 1, pageSize: Int ?= 50, available: Option[Boolean])
-GET     /products/:id                   ro.andonescu.shoppingbasket.controllers.ProductsController.product(id: String)
+# Product
+GET     /products                       ro.andonescu.shoppingbasket.controllers.ProductController.products(page: Int ?= 1, pageSize: Int ?= 50, available: Option[Boolean])
+GET     /products/:id                   ro.andonescu.shoppingbasket.controllers.ProductController.product(id: String)
+
+# Shopping Basket
+POST    /shoppingbaskets                ro.andonescu.shoppingbasket.controllers.BasketController.post()

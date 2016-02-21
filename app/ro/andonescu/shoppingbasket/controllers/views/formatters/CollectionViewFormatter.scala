@@ -1,4 +1,4 @@
-package ro.andonescu.shoppingbasket.controllers.views.formaters
+package ro.andonescu.shoppingbasket.controllers.views.formatters
 
 import play.api.libs.json.{Writes, Json}
 import ro.andonescu.shoppingbasket.controllers.views.{CollectionView, PageInfoView}

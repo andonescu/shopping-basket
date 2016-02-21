@@ -1,8 +1,10 @@
 package ro.andonescu.shoppingbasket.services
 
+import org.junit.runner.RunWith
 import org.specs2.concurrent.ExecutionEnv
 import org.specs2.mock.Mockito
 import org.specs2.mutable._
+import org.specs2.runner.JUnitRunner
 import ro.andonescu.shoppingbasket.dao.ProductRepository
 import ro.andonescu.shoppingbasket.dao.entities.Product
 import ro.andonescu.shoppingbasket.dao.entities.gen.ProductGen
@@ -13,6 +15,7 @@ import scala.concurrent.Future
 /**
   * Created by andonescu on 21.02.2016.
   */
+@RunWith(classOf[JUnitRunner])
 class ProductServiceTest extends Specification with Mockito {
 
 

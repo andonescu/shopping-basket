@@ -1,4 +1,4 @@
-package ro.andonescu.shoppingbasket.controllers.views.formaters
+package ro.andonescu.shoppingbasket.controllers.views.formatters
 
 import play.api.libs.json.{Json, Writes}
 import ro.andonescu.shoppingbasket.controllers.views.Link

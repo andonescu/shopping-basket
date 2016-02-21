@@ -18,7 +18,7 @@ final class ProductViewMapper(req: Request[_]) extends Mapper[Product, ProductCo
       obj.price,
       obj.currency,
       obj.isAvailable,
-      Link.self(ro.andonescu.shoppingbasket.controllers.routes.ProductsController.product(obj.id), req)
+      Link.self(ro.andonescu.shoppingbasket.controllers.routes.ProductController.product(obj.id), req)
     )
 
 }
