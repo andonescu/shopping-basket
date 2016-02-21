@@ -10,7 +10,7 @@ import play.api.libs.json.Json
 import play.api.mvc.{Action, Controller}
 
 import ro.andonescu.shoppingbasket.controllers.mappers.views.ShoppingBasketItemDisplayViewMapper
-import ro.andonescu.shoppingbasket.services.items.{ShoppingBasketItemDisplay, ShoppingBasketItemView}
+import ro.andonescu.shoppingbasket.services.items.{ShoppingBasketItemDelete, ShoppingBasketItemDisplay, ShoppingBasketItemView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -34,6 +34,14 @@ class BasketItemController @Inject()(val messagesApi: MessagesApi,
       case Some(display) =>
         import ro.andonescu.shoppingbasket.controllers.views.formatters.ShoppingBasketDisplayFormatter._
         Ok(Json.toJson(new ShoppingBasketItemDisplayViewMapper(basketId)(request).toView(display)))
+      case None => NotFound
+    }
+  }
+
+  def deleteItemFromBasket(basketId: String, itemId: String) = Action.async { implicit request =>
+    (shoppingBasketActor ? ShoppingBasketItemDelete(basketId, itemId)).mapTo[Future[Option[Unit]]].flatMap(identity).map {
+      case Some(_) =>
+        Ok
       case None => NotFound
     }
   }

@@ -25,7 +25,28 @@ class ShoppingBasketActor @Inject()(productRepo: ProductRepository)(implicit ec:
     case ShoppingBasketItemView(basketId, itemId) =>
       // GET /shoppingbaskets/:id/items
       sender() ! handleBasketItems(basketId, itemId)
+    case ShoppingBasketItemDelete(basketId, itemId) =>
+      sender() ! handleBasketItemDelete(basketId, itemId)
+    case _ => ???
   }
+
+  def handleBasketItemDelete(basketId: String, itemId: String) = {
+    Future.successful(shoppingBasketSeq.find(b => b.id == basketId).map {
+      basket =>
+
+        val elementToBeRemoved = basket.items.find(_.id == itemId)
+
+        elementToBeRemoved.map { elem =>
+          val shoppingListWithTheCurrentBasket = shoppingBasketSeq diff (Seq(basket))
+          val itemsWithoutTheRemovedItem = basket.items.filterNot(_.id == itemId)
+
+          shoppingBasketSeq = shoppingListWithTheCurrentBasket :+ basket.copy(items = itemsWithoutTheRemovedItem)
+          updateItems(elem.product.id, elem.capacity, ShoppingCartOperations.add
+        }
+      //TODO: put back what has been removed
+    }.flatten)
+  }
+
 
   /**
     * Retrieve a single basket element
@@ -109,7 +130,7 @@ class ShoppingBasketActor @Inject()(productRepo: ProductRepository)(implicit ec:
           } else {
             // this thing usually should be in a transaction
 
-            blockItems(items) match {
+            updateItems(items) match {
               case Success(_) =>
                 // we can store the new list
                 val newShoppingBasket = ShoppingBasket(
@@ -145,21 +166,33 @@ class ShoppingBasketActor @Inject()(productRepo: ProductRepository)(implicit ec:
     * TODO: this needs some refactor;
     * TODO: replace [[RuntimeException]] with some custom application errors
     */
-  private[akka] def blockItems(id: String, numberToBlock: Int) = {
+  private[akka] def updateItems(id: String, numberToBlock: Long, op: (Long, Long) => Long = ShoppingCartOperations.decrease) = synchronized {
+    import scala.util.control.Breaks._
 
-    for (i <- 0 until ProductGen.getProducts.size) {
-      val product = ProductGen.getProducts(i)
+    breakable {
+      for (i <- 0 until ProductGen.getProducts.size) {
+        val product = ProductGen.getProducts(i)
 
-      if (product.id == id)
-        if (product.stock > numberToBlock)
-          ProductGen.getProducts(i) = product.copy(stock = product.stock - numberToBlock)
+        if (product.id == id)
+          if (product.stock > numberToBlock) {
+            ProductGen.getProducts(i) = product.copy(stock = op(product.stock, numberToBlock))
+            break
+          }
+      }
     }
   }
+
+  object ShoppingCartOperations {
+    def add(x: Long, y: Long) = x + y
+
+    def decrease(x: Long, y: Long) = x - y
+  }
+
 
   /**
     * TODO: this should be handled in a different way
     */
-  private[akka] def blockItems(items: Seq[ShoppingBasketCreateItem]): Try[Unit] =
-    synchronized(Try(items.map(f => blockItems(f.product.id, f.capacity))))
+  private[akka] def updateItems(items: Seq[ShoppingBasketCreateItem]): Try[Unit] =
+    synchronized(Try(items.map(f => updateItems(f.product.id, f.capacity))))
 
 }

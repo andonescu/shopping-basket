@@ -19,6 +19,8 @@ case class ShoppingBasketView(id: String) extends ServiceDto
 
 case class ShoppingBasketItemView(basketId: String, itemId: String) extends ServiceDto
 
+case class ShoppingBasketItemDelete(basketId: String, itemId: String) extends ServiceDto
+
 
 // ShoppingBasket items
 
