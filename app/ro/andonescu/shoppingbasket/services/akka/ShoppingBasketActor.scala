@@ -14,21 +14,21 @@ class ShoppingBasketActor @Inject()(productRepo: ProductRepository)(implicit ec:
 
   def receive = {
 
-    case ShoppingBasketCreate(items) =>
+    case request: ShoppingBasketCreate =>
 
-      handleRequest(handleShoppingBasketCreateRequest, items)
+      handleRequest(handleShoppingBasketCreateRequest, request)
 
-    case ShoppingBasketView(id) =>
+    case request: ShoppingBasketView =>
 
-      handleRequest(handleBasketView, id)
+      handleRequest(handleBasketView, request)
 
-    case ShoppingBasketItemView(basketId, itemId) =>
+    case request: ShoppingBasketItemView =>
 
-      handleRequest(handleBasketItems, basketId, itemId)
+      handleRequest(handleBasketItems, request)
 
-    case ShoppingBasketItemDelete(basketId, itemId) =>
+    case request: ShoppingBasketItemDelete =>
 
-      handleRequest(handleBasketItemDelete, basketId, itemId)
+      handleRequest(handleBasketItemDelete, request)
 
     case createItemInfo: ShoppingBasketCreateItemSingle =>
 
@@ -41,15 +41,6 @@ class ShoppingBasketActor @Inject()(productRepo: ProductRepository)(implicit ec:
     val realSender = sender()
 
     f(p) onComplete {
-      case Success(response) => realSender ! response
-      case Failure(ex) => realSender ! Left(ServiceErrors("", ex.toString()))
-    }
-  }
-
-  private def handleRequest[T](f: (T, T) => Future[_], p: T, r: T) : Unit = {
-    val realSender = sender()
-
-    f(p, r) onComplete {
       case Success(response) => realSender ! response
       case Failure(ex) => realSender ! Left(ServiceErrors("", ex.toString()))
     }
@@ -74,15 +65,15 @@ class ShoppingBasketActor @Inject()(productRepo: ProductRepository)(implicit ec:
     })
 
 
-  def handleBasketItemDelete(basketId: String, itemId: String) = {
-    Future.successful(shoppingBasketSeq.find(b => b.id == basketId).map {
+  def handleBasketItemDelete(request: ShoppingBasketItemDelete) = {
+    Future.successful(shoppingBasketSeq.find(b => b.id == request.basketId).map {
       basket =>
 
-        val elementToBeRemoved = basket.items.find(_.id == itemId)
+        val elementToBeRemoved = basket.items.find(_.id == request.itemId)
 
         elementToBeRemoved.map { elem =>
           val shoppingListWithTheCurrentBasket = shoppingBasketSeq diff (Seq(basket))
-          val itemsWithoutTheRemovedItem = basket.items.filterNot(_.id == itemId)
+          val itemsWithoutTheRemovedItem = basket.items.filterNot(_.id == request.itemId)
 
           shoppingBasketSeq = shoppingListWithTheCurrentBasket :+ basket.copy(items = itemsWithoutTheRemovedItem)
           updateItems(elem.product.id, elem.capacity, ShoppingCartOperations.add)
@@ -95,16 +86,16 @@ class ShoppingBasketActor @Inject()(productRepo: ProductRepository)(implicit ec:
   /**
     * Retrieve a single basket element
     */
-  def handleBasketItems(basketId: String, itemId: String): Future[Option[ShoppingBasketItemDisplay]] =
-    handleBasketView(basketId).map { basketOpt =>
+  def handleBasketItems(request: ShoppingBasketItemView): Future[Option[ShoppingBasketItemDisplay]] =
+    handleBasketView(ShoppingBasketView(request.basketId)).map { basketOpt =>
       basketOpt.map { basket =>
-        basket.items.find(_.id == itemId)
+        basket.items.find(_.id == request.itemId)
       }.flatten
       // we need to flatten so that we can transform from Option[Option to just a single Option
     }
 
-  private def handleBasketView(id: String): Future[Option[ShoppingBasketDisplay]] = {
-    val shoppingBasket = shoppingBasketSeq.find(_.id == id).map {
+  private def handleBasketView(request: ShoppingBasketView): Future[Option[ShoppingBasketDisplay]] = {
+    val shoppingBasket = shoppingBasketSeq.find(_.id == request.id).map {
       basket =>
         // get all the items from the basket (unique items)
         val basketItems = basket.items.map(_.product.id).toSet
@@ -147,15 +138,15 @@ class ShoppingBasketActor @Inject()(productRepo: ProductRepository)(implicit ec:
   /**
     * Handle a [[ro.andonescu.shoppingbasket.services.items.ShoppingBasketCreate]] request
     */
-  private[akka] def handleShoppingBasketCreateRequest(items: Seq[ShoppingBasketCreateItem]): Future[Either[ServiceErrors, String]] = {
+  private[akka] def handleShoppingBasketCreateRequest(request: ShoppingBasketCreate): Future[Either[ServiceErrors, String]] = {
     val response = productRepo.collection.map {
       products =>
 
-        val itemsIdsSeq = items.map(_.product.id)
+        val itemsIdsSeq = request.items.map(_.product.id)
 
         val retrievedProducts = products.filter(p => itemsIdsSeq.contains(p.id))
 
-        if (retrievedProducts.size != items.size) {
+        if (retrievedProducts.size != request.items.size) {
           // we have an issue; a few items are not in database
           // abort the request
           Left(ServiceErrors("/items", "elements not discovered in dababase"))
@@ -164,7 +155,7 @@ class ShoppingBasketActor @Inject()(productRepo: ProductRepository)(implicit ec:
 
 
           val unavailableErrorProducts = retrievedProducts
-            .filterNot(p => checkProductAvailability(p, requestedProductById(p.id, items)))
+            .filterNot(p => checkProductAvailability(p, requestedProductById(p.id, request.items)))
             .map(p => ServiceErrors("/items", s"there are not sufficient ${p.name}").errors)
             .flatten
 
@@ -174,12 +165,12 @@ class ShoppingBasketActor @Inject()(productRepo: ProductRepository)(implicit ec:
           } else {
             // this thing usually should be in a transaction
 
-            updateItems(items) match {
+            updateItems(request.items) match {
               case Success(_) =>
                 // we can store the new list
                 val newShoppingBasket = ShoppingBasket(
                   UUID.randomUUID().toString,
-                  items.map(i => ShoppingBasketItem(UUID.randomUUID(), i))
+                  request.items.map(i => ShoppingBasketItem(UUID.randomUUID(), i))
                 )
 
                 shoppingBasketSeq = shoppingBasketSeq :+ newShoppingBasket
