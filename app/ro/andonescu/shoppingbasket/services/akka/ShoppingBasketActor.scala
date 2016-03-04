@@ -1,35 +1,58 @@
 package ro.andonescu.shoppingbasket.services.akka
 
 import java.util.UUID
-
+import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success, Try}
 import akka.actor.Actor
 import com.google.inject.Inject
-
 import ro.andonescu.shoppingbasket.dao.ProductRepository
 import ro.andonescu.shoppingbasket.dao.entities.Product
 import ro.andonescu.shoppingbasket.dao.entities.gen.ProductGen
 import ro.andonescu.shoppingbasket.services.items._
 
-import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success, Try}
-
 class ShoppingBasketActor @Inject()(productRepo: ProductRepository)(implicit ec: ExecutionContext) extends Actor {
 
   def receive = {
+
     case ShoppingBasketCreate(items) =>
-      // POST /shoppingbaskets
-      sender() ! handleShoppingBasketCreateRequest(items)
+
+      handleRequest(handleShoppingBasketCreateRequest, items)
+
     case ShoppingBasketView(id) =>
-      // GET /shoppingbaskets/:id
-      sender() ! handleBasketView(id)
+
+      handleRequest(handleBasketView, id)
+
     case ShoppingBasketItemView(basketId, itemId) =>
-      // GET /shoppingbaskets/:id/items
-      sender() ! handleBasketItems(basketId, itemId)
+
+      handleRequest(handleBasketItems, basketId, itemId)
+
     case ShoppingBasketItemDelete(basketId, itemId) =>
-      sender() ! handleBasketItemDelete(basketId, itemId)
+
+      handleRequest(handleBasketItemDelete, basketId, itemId)
+
     case createItemInfo: ShoppingBasketCreateItemSingle =>
-      sender() ! handleShoppingBasketCreateItemSimple(createItemInfo)
+
+      handleRequest(handleShoppingBasketCreateItemSimple, createItemInfo)
+
     case _ => ???
+  }
+
+  private def handleRequest[T](f: T => Future[_], p: T) : Unit = {
+    val realSender = sender()
+
+    f(p) onComplete {
+      case Success(response) => realSender ! response
+      case Failure(ex) => realSender ! Left(ServiceErrors("", ex.toString()))
+    }
+  }
+
+  private def handleRequest[T](f: (T, T) => Future[_], p: T, r: T) : Unit = {
+    val realSender = sender()
+
+    f(p, r) onComplete {
+      case Success(response) => realSender ! response
+      case Failure(ex) => realSender ! Left(ServiceErrors("", ex.toString()))
+    }
   }
 
   def handleShoppingBasketCreateItemSimple(createItemInfo: ShoppingBasketCreateItemSingle): Future[Option[Either[ServiceErrors, String]]] =
@@ -172,7 +195,7 @@ class ShoppingBasketActor @Inject()(productRepo: ProductRepository)(implicit ec:
   }
 
   //TODO: this should be moved from here into a singleton
-  private [akka]  var shoppingBasketSeq: scala.collection.mutable.Seq[ShoppingBasket] = scala.collection.mutable.Seq.empty[ShoppingBasket]
+  private[akka] var shoppingBasketSeq: scala.collection.mutable.Seq[ShoppingBasket] = scala.collection.mutable.Seq.empty[ShoppingBasket]
 
   private def requestedProductById(id: String, itemsFromBasket: Seq[ShoppingBasketCreateItem]) =
     itemsFromBasket.find(_.product.id == id)

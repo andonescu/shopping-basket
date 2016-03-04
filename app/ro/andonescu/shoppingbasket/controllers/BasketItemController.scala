@@ -33,7 +33,7 @@ class BasketItemController @Inject()(val messagesApi: MessagesApi,
     */
   def itemByBasket(basketId: String, itemId: String) = Action.async { implicit request =>
     //TODO: refactor these long lines
-    (shoppingBasketActor ? ShoppingBasketItemView(basketId, itemId)).mapTo[Future[Option[ShoppingBasketItemDisplay]]].flatMap(identity).map {
+    (shoppingBasketActor ? ShoppingBasketItemView(basketId, itemId)).mapTo[Option[ShoppingBasketItemDisplay]].map {
       case Some(display) =>
         import ro.andonescu.shoppingbasket.controllers.views.formatters.ShoppingBasketDisplayFormatter._
         Ok(Json.toJson(new ShoppingBasketItemDisplayViewMapper(basketId)(request).toView(display)))
@@ -45,7 +45,7 @@ class BasketItemController @Inject()(val messagesApi: MessagesApi,
     * Handler for DELETE /shoppingbaskets/:id/items/:id
     */
   def deleteItemFromBasket(basketId: String, itemId: String) = Action.async { implicit request =>
-    (shoppingBasketActor ? ShoppingBasketItemDelete(basketId, itemId)).mapTo[Future[Option[Unit]]].flatMap(identity).map {
+    (shoppingBasketActor ? ShoppingBasketItemDelete(basketId, itemId)).mapTo[Option[Unit]].map {
       case Some(_) =>
         Ok
       case None => NotFound
@@ -62,7 +62,7 @@ class BasketItemController @Inject()(val messagesApi: MessagesApi,
         json.validate[PostBasketItemForm].map {
           form =>
 
-            (shoppingBasketActor ? new ShoppingBasketCreateItemSingleMapper(basketId).toServiceObj(form)).mapTo[Future[Option[Either[ServiceErrors, String]]]].flatMap(identity).map {
+            (shoppingBasketActor ? new ShoppingBasketCreateItemSingleMapper(basketId).toServiceObj(form)).mapTo[Option[Either[ServiceErrors, String]]].map {
               case Some(either) =>
                 either match {
                   case Right(itemId) => Created.withHeaders((CONTENT_TYPE, itemLocationURL(basketId, itemId)))

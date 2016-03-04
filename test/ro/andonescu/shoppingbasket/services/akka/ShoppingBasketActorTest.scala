@@ -37,7 +37,7 @@ class ShoppingBasketActorTest extends Specification with Mockito {
 
       val responseAsFuture = (actorRef ? ShoppingBasketCreate(
         Seq(ShoppingBasketCreateItem(ShoppingBasketCreateProductItem(products(0).id), 2))
-      )).mapTo[Future[Either[ServiceErrors, String]]].flatMap(identity)
+      )).mapTo[Either[ServiceErrors, String]]
 
       val response = Await.result(responseAsFuture, Duration.Inf)
 
@@ -56,7 +56,7 @@ class ShoppingBasketActorTest extends Specification with Mockito {
 
       val responseAsFuture = (actorRef ? ShoppingBasketCreate(
         Seq(ShoppingBasketCreateItem(ShoppingBasketCreateProductItem(products(0).id), 2))
-      )).mapTo[Future[Either[ServiceErrors, String]]].flatMap(identity)
+      )).mapTo[Either[ServiceErrors, String]]
 
       val response = Await.result(responseAsFuture, Duration.Inf)
 

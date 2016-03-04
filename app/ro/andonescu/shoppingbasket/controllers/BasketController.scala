@@ -38,7 +38,7 @@ class BasketController @Inject()(val messagesApi: MessagesApi,
 
             // we can have an intermediary validator
 
-            (shoppingBasketActor ? BasketCreationMapper.toServiceObj(form)).mapTo[Future[Either[ServiceErrors, String]]].flatMap(identity).map {
+            (shoppingBasketActor ? BasketCreationMapper.toServiceObj(form)).mapTo[Either[ServiceErrors, String]].map {
               case Right(id) => Created.withHeaders((LOCATION, basketLocationURl(id)))
               case Left(errors) => BadRequest(errors.toString)
             }
@@ -54,7 +54,7 @@ class BasketController @Inject()(val messagesApi: MessagesApi,
     */
   def get(id: String) = Action.async { implicit request =>
 
-    (shoppingBasketActor ? ShoppingBasketView(id)).mapTo[Future[Option[ShoppingBasketDisplay]]].flatMap(identity).map {
+    (shoppingBasketActor ? ShoppingBasketView(id)).mapTo[Option[ShoppingBasketDisplay]].map {
       case Some(display) =>
         import ro.andonescu.shoppingbasket.controllers.views.formatters.ShoppingBasketDisplayFormatter._
         Ok(Json.toJson(new ShoppingBasketDisplayViewMapper(request).toView(display)))

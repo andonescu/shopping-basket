@@ -14,7 +14,6 @@ class ShoppingBasketModuleRegister extends AbstractModule with AkkaGuiceSupport 
   }
 }
 
-
 object ShoppingBasketModuleRegister {
   val ShoppingBasketRegisterName = "shopping-basket-actor"
 }
