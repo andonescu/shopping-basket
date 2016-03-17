@@ -52,7 +52,7 @@ class ShoppingBasketActor @Inject()(productRepo: ProductRepository)(implicit ec:
         updateItems(Seq(createItemInfo.item)) match {
           case Success(_) =>
             // we can store the new list
-            val shoppingListWithTheCurrentBasket = shoppingBasketSeq diff (Seq(basket))
+            val shoppingListWithTheCurrentBasket = shoppingBasketSeq diff Seq(basket)
 
             val newItem = ShoppingBasketItem(UUID.randomUUID(), createItemInfo.item)
 
@@ -66,20 +66,20 @@ class ShoppingBasketActor @Inject()(productRepo: ProductRepository)(implicit ec:
 
 
   def handleBasketItemDelete(request: ShoppingBasketItemDelete) = {
-    Future.successful(shoppingBasketSeq.find(b => b.id == request.basketId).map {
+    Future.successful(shoppingBasketSeq.find(b => b.id == request.basketId).flatMap {
       basket =>
 
         val elementToBeRemoved = basket.items.find(_.id == request.itemId)
 
         elementToBeRemoved.map { elem =>
-          val shoppingListWithTheCurrentBasket = shoppingBasketSeq diff (Seq(basket))
+          val shoppingListWithTheCurrentBasket = shoppingBasketSeq diff Seq(basket)
           val itemsWithoutTheRemovedItem = basket.items.filterNot(_.id == request.itemId)
 
           shoppingBasketSeq = shoppingListWithTheCurrentBasket :+ basket.copy(items = itemsWithoutTheRemovedItem)
           updateItems(elem.product.id, elem.capacity, ShoppingCartOperations.add)
         }
       //TODO: put back what has been removed
-    }.flatten)
+    })
   }
 
 
@@ -88,9 +88,9 @@ class ShoppingBasketActor @Inject()(productRepo: ProductRepository)(implicit ec:
     */
   def handleBasketItems(request: ShoppingBasketItemView): Future[Option[ShoppingBasketItemDisplay]] =
     handleBasketView(ShoppingBasketView(request.basketId)).map { basketOpt =>
-      basketOpt.map { basket =>
+      basketOpt.flatMap { basket =>
         basket.items.find(_.id == request.itemId)
-      }.flatten
+      }
       // we need to flatten so that we can transform from Option[Option to just a single Option
     }
 
@@ -149,17 +149,16 @@ class ShoppingBasketActor @Inject()(productRepo: ProductRepository)(implicit ec:
         if (retrievedProducts.size != request.items.size) {
           // we have an issue; a few items are not in database
           // abort the request
-          Left(ServiceErrors("/items", "elements not discovered in dababase"))
+          Left(ServiceErrors("/items", "elements not discovered in database"))
         } else {
           // continue to second type of validation //availability of the item
 
 
           val unavailableErrorProducts = retrievedProducts
             .filterNot(p => checkProductAvailability(p, requestedProductById(p.id, request.items)))
-            .map(p => ServiceErrors("/items", s"there are not sufficient ${p.name}").errors)
-            .flatten
+            .flatMap(p => ServiceErrors("/items", s"there are not sufficient ${p.name}").errors)
 
-          if (!unavailableErrorProducts.isEmpty) {
+          if (unavailableErrorProducts.nonEmpty) {
             // it looks like we have a few products which are not available
             Left(ServiceErrors(unavailableErrorProducts))
           } else {
@@ -206,7 +205,7 @@ class ShoppingBasketActor @Inject()(productRepo: ProductRepository)(implicit ec:
       import scala.util.control.Breaks._
 
       breakable {
-        for (i <- 0 until ProductGen.getProducts.size) {
+        for (i <- ProductGen.getProducts.indices) {
           val product = ProductGen.getProducts(i)
 
           if (product.id == id)

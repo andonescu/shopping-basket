@@ -2,6 +2,7 @@ package ro.andonescu.shoppingbasket.services
 
 import com.google.inject.{Inject, Singleton}
 import play.api.Logger
+
 import ro.andonescu.shoppingbasket.dao.ProductRepository
 import ro.andonescu.shoppingbasket.dao.entities.Product
 import ro.andonescu.shoppingbasket.services.items.{Item, PaginationItem}
