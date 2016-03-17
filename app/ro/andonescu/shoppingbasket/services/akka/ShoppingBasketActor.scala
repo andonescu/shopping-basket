@@ -138,8 +138,8 @@ class ShoppingBasketActor @Inject()(productRepo: ProductRepository)(implicit ec:
   /**
     * Handle a [[ro.andonescu.shoppingbasket.services.items.ShoppingBasketCreate]] request
     */
-  private[akka] def handleShoppingBasketCreateRequest(request: ShoppingBasketCreate): Future[Either[ServiceErrors, String]] = {
-    val response = productRepo.collection.map {
+  private[akka] def handleShoppingBasketCreateRequest(request: ShoppingBasketCreate): Future[Either[ServiceErrors, String]] =
+    productRepo.collection.map {
       products =>
 
         val itemsIdsSeq = request.items.map(_.product.id)
@@ -181,8 +181,6 @@ class ShoppingBasketActor @Inject()(productRepo: ProductRepository)(implicit ec:
           }
         }
     }
-    response
-  }
 
   //TODO: this should be moved from here into a singleton
   private[akka] var shoppingBasketSeq: scala.collection.mutable.Seq[ShoppingBasket] = scala.collection.mutable.Seq.empty[ShoppingBasket]
