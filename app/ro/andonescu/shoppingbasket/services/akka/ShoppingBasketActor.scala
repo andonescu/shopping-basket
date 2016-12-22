@@ -1,14 +1,16 @@
 package ro.andonescu.shoppingbasket.services.akka
 
 import java.util.UUID
-import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success, Try}
+
 import akka.actor.Actor
 import com.google.inject.Inject
 import ro.andonescu.shoppingbasket.dao.ProductRepository
 import ro.andonescu.shoppingbasket.dao.entities.Product
 import ro.andonescu.shoppingbasket.dao.entities.gen.ProductGen
 import ro.andonescu.shoppingbasket.services.items._
+
+import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success, Try}
 
 class ShoppingBasketActor @Inject()(productRepo: ProductRepository)(implicit ec: ExecutionContext) extends Actor {
 
@@ -34,10 +36,14 @@ class ShoppingBasketActor @Inject()(productRepo: ProductRepository)(implicit ec:
 
       handleRequest(handleShoppingBasketCreateItemSimple, createItemInfo)
 
+    case request: ShoppingBasketDelete =>
+
+      handleRequest(handleBasketDelete, request)
+
     case _ => ???
   }
 
-  private def handleRequest[T](f: T => Future[_], p: T) : Unit = {
+  private def handleRequest[T](f: T => Future[_], p: T): Unit = {
     val realSender = sender()
 
     f(p) onComplete {
@@ -65,7 +71,7 @@ class ShoppingBasketActor @Inject()(productRepo: ProductRepository)(implicit ec:
     })
 
 
-  def handleBasketItemDelete(request: ShoppingBasketItemDelete) = {
+  def handleBasketItemDelete(request: ShoppingBasketItemDelete) =
     Future.successful(shoppingBasketSeq.find(b => b.id == request.basketId).flatMap {
       basket =>
 
@@ -80,8 +86,24 @@ class ShoppingBasketActor @Inject()(productRepo: ProductRepository)(implicit ec:
         }
       //TODO: put back what has been removed
     })
-  }
 
+
+  def handleBasketDelete(request: ShoppingBasketDelete) =
+    Future.successful(
+      shoppingBasketSeq.find(_.id == request.id).map { basket =>
+
+
+        // update shoppingBasketSeq -
+        shoppingBasketSeq = shoppingBasketSeq diff Seq(basket)
+
+        // update storage
+        basket.items.map { elem =>
+          updateItems(elem.product.id, elem.capacity, ShoppingCartOperations.add)
+        }
+
+        ShoppingBasketDeleted()
+      }
+    )
 
   /**
     * Retrieve a single basket element
@@ -102,8 +124,6 @@ class ShoppingBasketActor @Inject()(productRepo: ProductRepository)(implicit ec:
 
         // get all these items from storage
         val retrievedProducts = productRepo.collection.map(_.filter(p => basketItems.contains(p.id)))
-
-
 
         retrievedProducts.map {
           products =>

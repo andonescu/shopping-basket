@@ -17,6 +17,8 @@ case class ShoppingBasketCreate(items: Seq[ShoppingBasketCreateItem]) extends Se
 
 case class ShoppingBasketView(id: String) extends ServiceDto
 
+case class ShoppingBasketDelete(id: String) extends ServiceDto
+
 case class ShoppingBasketItemView(basketId: String, itemId: String) extends ServiceDto
 
 case class ShoppingBasketItemDelete(basketId: String, itemId: String) extends ServiceDto
@@ -50,3 +52,5 @@ case class ShoppingBasketItemDisplay(id: String, product: ProductDisplay,  added
 
 
 case class ShoppingBasketDisplay(id: String, items: Seq[ShoppingBasketItemDisplay])
+
+case class ShoppingBasketDeleted()

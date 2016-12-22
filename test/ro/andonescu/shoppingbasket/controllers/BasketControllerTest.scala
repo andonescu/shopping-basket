@@ -4,7 +4,6 @@ import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 import play.api.libs.json.Json
 import play.api.test.{FakeHeaders, FakeRequest, PlaySpecification, WithApplication}
-
 import ro.andonescu.shoppingbasket.dao.entities.gen.ProductGen
 
 /**
@@ -17,12 +16,11 @@ class BasketControllerTest extends PlaySpecification {
   "BasketController#post" should {
 
     "return not create a shopping basket for no json" in new WithApplication {
-      val response = route(FakeRequest(POST, "/shoppingbaskets"))
+      val response = route(app, FakeRequest(POST, "/shoppingbaskets"))
 
 
       response must beSome.which(status(_) == BAD_REQUEST)
     }
-
 
 
     "return create the shopping basket request with a single available item" in new WithApplication {
@@ -35,19 +33,19 @@ class BasketControllerTest extends PlaySpecification {
 
       val jsonString =
         s""" {
-          | "items": [
-          |        {
-          |            "product": {
-          |                "id": "${firstProduct.id}"
-          |            },
-          |            "capacity": 2
-          |        }
-          |    ]
-          | }
+           | "items": [
+           |        {
+           |            "product": {
+           |                "id": "${firstProduct.id}"
+           |            },
+           |            "capacity": 2
+           |        }
+           |    ]
+           | }
         """.stripMargin
 
 
-      val response = route(
+      val response = route(app,
         FakeRequest(
           POST,
           "/shoppingbaskets",
@@ -69,19 +67,19 @@ class BasketControllerTest extends PlaySpecification {
 
       val jsonString =
         s""" {
-            | "items": [
-            |        {
-            |            "product": {
-            |                "id": "${firstProduct.id}"
-            |            },
-            |            "capacity": 2
-            |        }
-            |    ]
-            | }
+           | "items": [
+           |        {
+           |            "product": {
+           |                "id": "${firstProduct.id}"
+           |            },
+           |            "capacity": 2
+           |        }
+           |    ]
+           | }
         """.stripMargin
 
 
-      val response = route(
+      val response = route(app,
         FakeRequest(
           POST,
           "/shoppingbaskets",
@@ -107,7 +105,7 @@ class BasketControllerTest extends PlaySpecification {
         """.stripMargin
 
 
-      val response = route(
+      val response = route(app,
         FakeRequest(
           POST,
           "/shoppingbaskets",
@@ -135,7 +133,7 @@ class BasketControllerTest extends PlaySpecification {
         """.stripMargin
 
 
-      val response = route(
+      val response = route(app,
         FakeRequest(
           POST,
           "/shoppingbaskets",
@@ -145,6 +143,33 @@ class BasketControllerTest extends PlaySpecification {
 
 
       response must beSome.which(status(_) == BAD_REQUEST)
+    }
+  }
+
+  "BasketController#delete" should {
+    "delete an entire basket with product number updated" in new WithApplication {
+      val basketId = "1111-EXISTS"
+
+      val response = route(app, FakeRequest(DELETE, s"/shoppingbaskets/$basketId"))
+
+      response must beSome.which(status(_) == OK)
+    }
+
+    "response with `NOT_FOUND` when delete is performed on a basket which doesn't exists" in new WithApplication {
+
+      val basketId = "1111-NOT_EXISTS"
+
+      val response = route(app, FakeRequest(DELETE, s"/shoppingbaskets/$basketId"))
+
+      response must beSome.which(status(_) == NOT_FOUND)
+    }
+
+    "delete an empty basket" in new WithApplication {
+      val basketId = "1111-EMPTY"
+
+      val response = route(app, FakeRequest(DELETE, s"/shoppingbaskets/$basketId"))
+
+      response must beSome.which(status(_) == OK)
     }
   }
 }

@@ -8,7 +8,7 @@ import play.api.test._
   * Created by andonescu on 20.02.2016.
   */
 @RunWith(classOf[JUnitRunner])
-class ProductControllerTest extends PlaySpecification{
+class ProductControllerTest extends PlaySpecification {
 
 
   "ProductsController#products" should {
