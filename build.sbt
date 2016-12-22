@@ -8,9 +8,9 @@ scalaVersion := "2.11.8"
 
 libraryDependencies ++= Seq(
   "org.mockito"                 %  "mockito-all"                % "1.10.19"   % Test,
-  "com.typesafe.play"           %% "play-specs2"                % "2.5.0"   % Test,
-  "com.typesafe.play"           %% "play-test"                  % "2.5.0"   % Test,
-  "com.typesafe.akka"           %% "akka-testkit"               % "2.4.2"  % Test,
+  "com.typesafe.play"           %% "play-specs2"                % "2.5.10"   % Test,
+  "com.typesafe.play"           %% "play-test"                  % "2.5.10"   % Test,
+  "com.typesafe.akka"           %% "akka-testkit"               % "2.4.14"  % Test,
   specs2 % Test
 )
 
