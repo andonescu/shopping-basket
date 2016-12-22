@@ -305,5 +305,5 @@ POST        /shoppingbaskets/:basketId/items                ro.andonescu.shoppin
 * DELETE /shoppingbaskets/d83jjdf939/items/d83jjdaffd
     * Deletes the given item from the basket
 
-* DELETE /shoppingbaskets/:id
+* DELETE /shoppingbaskets/d83jjdf939
     * Deletes the given basket
