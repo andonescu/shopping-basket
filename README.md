@@ -11,6 +11,7 @@ GET         /products/:id                                   ro.andonescu.shoppin
 # Shopping Basket
 POST        /shoppingbaskets                                ro.andonescu.shoppingbasket.controllers.BasketController.post()
 GET         /shoppingbaskets/:id                            ro.andonescu.shoppingbasket.controllers.BasketController.get(id: String)
+DELETE      /shoppingbaskets/:id                            ro.andonescu.shoppingbasket.controllers.BasketController.delete(id: String)
 
 # Shopping Basket Item Operations
 GET         /shoppingbaskets/:basketId/items/:itemId        ro.andonescu.shoppingbasket.controllers.BasketItemController.itemByBasket(basketId: String, itemId: String)
@@ -304,4 +305,5 @@ POST        /shoppingbaskets/:basketId/items                ro.andonescu.shoppin
 * DELETE /shoppingbaskets/d83jjdf939/items/d83jjdaffd
     * Deletes the given item from the basket
 
-* DELETE /shoppingbaskets/:id (!) not implemented
+* DELETE /shoppingbaskets/:id
+    * Deletes the given basket
