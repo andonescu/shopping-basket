@@ -2,7 +2,6 @@ package ro.andonescu.shoppingbasket.services
 
 import com.google.inject.{Inject, Singleton}
 import play.api.Logger
-
 import ro.andonescu.shoppingbasket.dao.ProductRepository
 import ro.andonescu.shoppingbasket.dao.entities.Product
 import ro.andonescu.shoppingbasket.services.items.{Item, PaginationItem}
@@ -30,27 +29,23 @@ class ProductService @Inject()(productRepo: ProductRepository) {
     * @return a [[Item]] of [[ro.andonescu.shoppingbasket.dao.entities.Product]] as [[scala.concurrent.Future]]
     *         with the extract data
     */
-  def products(
-      page: Int = 1,
-      pageSize: Int = 50,
-      available: Option[Boolean] = None)(implicit ec: ExecutionContext): Future[Item[Product]] = {
+  def products(page: Int = 1, pageSize: Int = 50, available: Option[Boolean] = None)
+              (implicit ec: ExecutionContext): Future[Item[Product]] = {
 
     Logger.debug(s"entry data: $page - $pageSize - $available")
 
-    // get all data based on the given parameter `available`
-    val productsFuture = productRepo.collection.map {
-      _.filter(product => available.fold(true)(_ == product.isAvailable))
-    }
 
-    productsFuture.map {
-      products =>
-        Logger.debug(s"retrieved data - $products")
-        val sliceStartPosition = (page - 1) * pageSize
-        // get just a slice of those elements
-        val returnedElements = products.slice(sliceStartPosition, sliceStartPosition + pageSize)
+    productRepo.collection.map { products =>
+      // get all data based on the given parameter `available`
+      val filteredProducts = products.filter(product => available.fold(true)(_ == product.isAvailable))
+
+      Logger.debug(s"retrieved data - $filteredProducts")
+      val sliceStartPosition = (page - 1) * pageSize
+      // get just a slice of those elements
+      val returnedElements = filteredProducts.slice(sliceStartPosition, sliceStartPosition + pageSize)
 
 
-        Item[Product](PaginationItem(products.size, page, returnedElements.size), returnedElements)
+      Item[Product](PaginationItem(filteredProducts.size, page, returnedElements.size), returnedElements)
     }
   }
 

@@ -9,7 +9,7 @@ import ro.andonescu.shoppingbasket.services.items.{ShoppingBasketCreate, Shoppin
   */
 object BasketCreationMapper extends ServiceMappers[PostBasketForms, ShoppingBasketCreate] {
   override def toServiceObj(obj: PostBasketForms): ShoppingBasketCreate = ShoppingBasketCreate(
-    items = obj.items.map{
+    items = obj.items.map {
       item =>
         ShoppingBasketCreateItem(ShoppingBasketCreateProductItem(item.product.id), item.capacity)
     }

@@ -1,8 +1,8 @@
 package ro.andonescu.shoppingbasket.controllers.mappers.views
 
 import play.api.mvc.Request
-
 import ro.andonescu.shoppingbasket.controllers.mappers.ViewMappers
+import ro.andonescu.shoppingbasket.controllers.routes
 import ro.andonescu.shoppingbasket.controllers.views.{Link, ProductDisplayView, ShoppingBasketDisplayView, ShoppingBasketItemDisplayView}
 import ro.andonescu.shoppingbasket.services.items.{ShoppingBasketDisplay, ShoppingBasketItemDisplay}
 
@@ -16,7 +16,7 @@ final class ShoppingBasketDisplayViewMapper(req: Request[_]) extends ViewMappers
       obj.items.map {
         i => new ShoppingBasketItemDisplayViewMapper(obj.id)(req).toView(i)
       },
-      Link.self(ro.andonescu.shoppingbasket.controllers.routes.BasketController.get(obj.id), req)
+      Link.self(routes.BasketController.get(obj.id), req)
     )
 }
 
@@ -30,10 +30,10 @@ final class ShoppingBasketItemDisplayViewMapper(basketId: String)(req: Request[_
       obj.product.description,
       obj.product.price,
       obj.product.currency,
-      Link.self(ro.andonescu.shoppingbasket.controllers.routes.ProductController.product(obj.product.id), req)
+      Link.self(routes.ProductController.product(obj.product.id), req)
     ),
     obj.addedDt,
     obj.capacity,
-    Link.self(ro.andonescu.shoppingbasket.controllers.routes.BasketItemController.itemByBasket(basketId, obj.id), req)
+    Link.self(routes.BasketItemController.itemByBasket(basketId, obj.id), req)
   )
 }
